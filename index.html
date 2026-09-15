@@ -1,0 +1,2461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>EarnNova — Earn & Rewards</title>
+  <meta
+    name="description"
+    content="Earn rewards through surveys, tasks, offers and daily bonuses."
+  />
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --primary: #6c4df6;
+      --primary-dark: #5135d9;
+      --secondary: #ff8a4c;
+      --green: #19a974;
+      --red: #ef4444;
+      --blue: #3b82f6;
+      --bg: #f6f7fb;
+      --card: #ffffff;
+      --text: #171722;
+      --muted: #77798b;
+      --border: #e8e8f0;
+      --shadow: 0 8px 25px rgba(40, 30, 90, 0.08);
+    }
+
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      padding-bottom: 80px;
+    }
+
+    button,
+    input {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+      border: none;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    /* AUTH */
+
+    #authScreen {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      background:
+        radial-gradient(circle at top right, #ded7ff, transparent 35%),
+        var(--bg);
+    }
+
+    .auth-box {
+      width: 100%;
+      max-width: 420px;
+      background: white;
+      border-radius: 25px;
+      padding: 30px 24px;
+      box-shadow: var(--shadow);
+    }
+
+    .auth-logo {
+      text-align: center;
+      margin-bottom: 25px;
+    }
+
+    .logo-icon {
+      width: 65px;
+      height: 65px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: white;
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: auto;
+      font-size: 32px;
+      box-shadow: 0 10px 25px rgba(108, 77, 246, .25);
+    }
+
+    .auth-logo h1 {
+      margin-top: 12px;
+      font-size: 28px;
+    }
+
+    .auth-logo p {
+      color: var(--muted);
+      margin-top: 5px;
+    }
+
+    .auth-tabs {
+      display: flex;
+      background: #f3f3f8;
+      border-radius: 12px;
+      padding: 4px;
+      margin-bottom: 20px;
+    }
+
+    .auth-tabs button {
+      width: 50%;
+      padding: 11px;
+      border-radius: 9px;
+      background: transparent;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .auth-tabs button.active {
+      background: white;
+      color: var(--primary);
+      box-shadow: 0 2px 8px rgba(0,0,0,.06);
+    }
+
+    .field {
+      margin-bottom: 14px;
+    }
+
+    .field label {
+      display: block;
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 7px;
+    }
+
+    .field input {
+      width: 100%;
+      padding: 14px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      outline: none;
+      background: #fafafd;
+    }
+
+    .field input:focus {
+      border-color: var(--primary);
+    }
+
+    .primary-btn {
+      width: 100%;
+      padding: 14px;
+      background: var(--primary);
+      color: white;
+      border-radius: 12px;
+      font-weight: 700;
+      margin-top: 5px;
+    }
+
+    .primary-btn:hover {
+      background: var(--primary-dark);
+    }
+
+    .auth-error {
+      color: var(--red);
+      font-size: 13px;
+      margin-top: 12px;
+      text-align: center;
+      min-height: 18px;
+    }
+
+    /* APP */
+
+    #app {
+      max-width: 520px;
+      margin: auto;
+      min-height: 100vh;
+    }
+
+    header {
+      background: white;
+      padding: 18px 18px 14px;
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      font-weight: 800;
+      font-size: 20px;
+    }
+
+    .brand span:first-child {
+      width: 38px;
+      height: 38px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--primary);
+      border-radius: 11px;
+      color: white;
+    }
+
+    .xp {
+      background: #f0edff;
+      color: var(--primary);
+      padding: 8px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    main {
+      padding: 18px;
+    }
+
+    /* PAGES */
+
+    .page {
+      display: none;
+    }
+
+    .page.active {
+      display: block;
+    }
+
+    .welcome {
+      margin-bottom: 18px;
+    }
+
+    .welcome h2 {
+      font-size: 25px;
+      margin-bottom: 5px;
+    }
+
+    .welcome p {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    /* BALANCE */
+
+    .balance-card {
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: white;
+      border-radius: 22px;
+      padding: 22px;
+      box-shadow: 0 12px 30px rgba(81,53,217,.25);
+      margin-bottom: 18px;
+    }
+
+    .balance-label {
+      opacity: .8;
+      font-size: 13px;
+    }
+
+    .balance {
+      font-size: 35px;
+      font-weight: 800;
+      margin: 7px 0;
+    }
+
+    .cash-value {
+      opacity: .9;
+      font-size: 14px;
+    }
+
+    .balance-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
+    }
+
+    .withdraw-btn {
+      background: white;
+      color: var(--primary);
+      padding: 10px 13px;
+      border-radius: 11px;
+      font-weight: 800;
+      font-size: 12px;
+    }
+
+    /* GRID */
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .stat-card {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 17px;
+      padding: 16px;
+    }
+
+    .stat-icon {
+      font-size: 22px;
+      margin-bottom: 9px;
+    }
+
+    .stat-card h3 {
+      font-size: 20px;
+    }
+
+    .stat-card p {
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 4px;
+    }
+
+    /* SECTION */
+
+    .section-title {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 20px 0 12px;
+    }
+
+    .section-title h3 {
+      font-size: 18px;
+    }
+
+    .section-title span {
+      color: var(--primary);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    /* TASKS */
+
+    .task-list {
+      display: grid;
+      gap: 11px;
+    }
+
+    .task {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 17px;
+      padding: 15px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .task-icon {
+      width: 45px;
+      height: 45px;
+      border-radius: 13px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #f0edff;
+      font-size: 22px;
+      flex-shrink: 0;
+    }
+
+    .task-info {
+      flex: 1;
+    }
+
+    .task-info h4 {
+      font-size: 14px;
+      margin-bottom: 4px;
+    }
+
+    .task-info p {
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .earn-btn {
+      background: #eeeaff;
+      color: var(--primary);
+      padding: 9px 11px;
+      border-radius: 9px;
+      font-weight: 800;
+      font-size: 11px;
+      white-space: nowrap;
+    }
+
+    /* DAILY BONUS */
+
+    .bonus {
+      background: linear-gradient(135deg, #fff2e8, #fff8f2);
+      border: 1px solid #ffe0c9;
+      border-radius: 18px;
+      padding: 17px;
+      display: flex;
+      align-items: center;
+      gap: 13px;
+    }
+
+    .bonus-icon {
+      font-size: 32px;
+    }
+
+    .bonus-content {
+      flex: 1;
+    }
+
+    .bonus-content h4 {
+      margin-bottom: 4px;
+    }
+
+    .bonus-content p {
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .bonus-btn {
+      background: var(--secondary);
+      color: white;
+      padding: 10px;
+      border-radius: 10px;
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    /* EARN CARDS */
+
+    .earn-grid {
+      display: grid;
+      gap: 12px;
+    }
+
+    .earn-card {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 18px;
+      display: flex;
+      gap: 14px;
+      align-items: center;
+    }
+
+    .earn-card .big-icon {
+      width: 52px;
+      height: 52px;
+      background: #f1efff;
+      border-radius: 15px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 26px;
+    }
+
+    .earn-card-content {
+      flex: 1;
+    }
+
+    .earn-card-content h3 {
+      font-size: 15px;
+      margin-bottom: 5px;
+    }
+
+    .earn-card-content p {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+
+    .earn-card button {
+      background: var(--primary);
+      color: white;
+      padding: 9px 12px;
+      border-radius: 10px;
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    /* REWARDS */
+
+    .reward-grid {
+      display: grid;
+      gap: 12px;
+    }
+
+    .reward {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 18px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .reward-icon {
+      width: 52px;
+      height: 52px;
+      background: #eefaf5;
+      border-radius: 15px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 26px;
+    }
+
+    .reward-info {
+      flex: 1;
+    }
+
+    .reward-info h3 {
+      font-size: 15px;
+    }
+
+    .reward-info p {
+      color: var(--muted);
+      font-size: 11px;
+      margin-top: 4px;
+    }
+
+    .redeem-btn {
+      background: #eaf8f2;
+      color: var(--green);
+      padding: 9px 11px;
+      border-radius: 9px;
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    .redeem-btn:disabled {
+      background: #eeeef3;
+      color: #aaa;
+      cursor: not-allowed;
+    }
+
+    /* REFERRAL */
+
+    .ref-card {
+      background: linear-gradient(135deg, #202035, #36365a);
+      color: white;
+      border-radius: 22px;
+      padding: 22px;
+    }
+
+    .ref-card h2 {
+      margin-bottom: 8px;
+    }
+
+    .ref-card p {
+      font-size: 13px;
+      opacity: .8;
+      line-height: 1.5;
+    }
+
+    .ref-code {
+      margin-top: 17px;
+      display: flex;
+      background: rgba(255,255,255,.1);
+      border-radius: 12px;
+      padding: 5px;
+    }
+
+    .ref-code span {
+      flex: 1;
+      padding: 11px;
+      font-weight: 800;
+      letter-spacing: 2px;
+    }
+
+    .copy-btn {
+      background: white;
+      color: #222;
+      padding: 0 13px;
+      border-radius: 9px;
+      font-weight: 800;
+      font-size: 11px;
+    }
+
+    /* PROFILE */
+
+    .profile-card {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .avatar {
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+      background: #eeeaff;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 30px;
+      margin: auto;
+    }
+
+    .profile-card h2 {
+      margin-top: 10px;
+    }
+
+    .profile-card p {
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 4px;
+    }
+
+    .profile-actions {
+      margin-top: 18px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .profile-action {
+      padding: 14px;
+      background: #f7f7fb;
+      border-radius: 12px;
+      text-align: left;
+      font-weight: 700;
+    }
+
+    .logout {
+      background: #fff0f0;
+      color: var(--red);
+    }
+
+    /* HISTORY */
+
+    .history-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .history-item {
+      background: white;
+      border: 1px solid var(--border);
+      padding: 14px;
+      border-radius: 15px;
+      display: flex;
+      align-items: center;
+    }
+
+    .history-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      background: #f1efff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 11px;
+    }
+
+    .history-info {
+      flex: 1;
+    }
+
+    .history-info strong {
+      display: block;
+      font-size: 13px;
+    }
+
+    .history-info small {
+      color: var(--muted);
+      font-size: 10px;
+    }
+
+    .history-points {
+      color: var(--green);
+      font-weight: 800;
+      font-size: 12px;
+    }
+
+    /* BOTTOM NAV */
+
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      max-width: 520px;
+      background: rgba(255,255,255,.96);
+      backdrop-filter: blur(12px);
+      border-top: 1px solid var(--border);
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      padding: 8px 5px 9px;
+      z-index: 30;
+    }
+
+    .nav-btn {
+      background: transparent;
+      color: #888;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 5px 2px;
+    }
+
+    .nav-btn div {
+      font-size: 20px;
+      margin-bottom: 3px;
+    }
+
+    .nav-btn.active {
+      color: var(--primary);
+    }
+
+    /* MODAL */
+
+    .modal-bg {
+      position: fixed;
+      inset: 0;
+      background: rgba(20,20,35,.55);
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .modal {
+      background: white;
+      width: 100%;
+      max-width: 390px;
+      border-radius: 22px;
+      padding: 23px;
+    }
+
+    .modal h2 {
+      margin-bottom: 8px;
+    }
+
+    .modal p {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.5;
+      margin-bottom: 18px;
+    }
+
+    .modal-close {
+      width: 100%;
+      padding: 13px;
+      border-radius: 11px;
+      background: #f1f1f6;
+      font-weight: 700;
+    }
+
+    /* TOAST */
+
+    #toast {
+      position: fixed;
+      left: 50%;
+      bottom: 92px;
+      transform: translateX(-50%) translateY(20px);
+      background: #20202e;
+      color: white;
+      padding: 12px 17px;
+      border-radius: 12px;
+      font-size: 12px;
+      opacity: 0;
+      pointer-events: none;
+      transition: .3s;
+      z-index: 200;
+      max-width: 90%;
+      text-align: center;
+    }
+
+    #toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    @media (min-width: 700px) {
+      body {
+        background: #ececf4;
+      }
+
+      #app {
+        background: var(--bg);
+        box-shadow: 0 0 50px rgba(0,0,0,.08);
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<!-- ================= AUTH SCREEN ================= -->
+
+<section id="authScreen">
+
+  <div class="auth-box">
+
+    <div class="auth-logo">
+      <div class="logo-icon">💰</div>
+      <h1>EarnNova</h1>
+      <p>Earn • Save • Reward</p>
+    </div>
+
+    <div class="auth-tabs">
+      <button id="loginTab" class="active" onclick="showAuth('login')">
+        Login
+      </button>
+
+      <button id="signupTab" onclick="showAuth('signup')">
+        Sign Up
+      </button>
+    </div>
+
+    <form id="authForm">
+
+      <div class="field">
+        <label>Email</label>
+        <input
+          type="email"
+          id="email"
+          placeholder="you@example.com"
+          required
+        />
+      </div>
+
+      <div class="field">
+        <label>Password</label>
+        <input
+          type="password"
+          id="password"
+          placeholder="Minimum 6 characters"
+          minlength="6"
+          required
+        />
+      </div>
+
+      <button class="primary-btn" type="submit" id="authButton">
+        Login
+      </button>
+
+      <div class="auth-error" id="authError"></div>
+
+    </form>
+
+  </div>
+
+</section>
+
+
+<!-- ================= MAIN APP ================= -->
+
+<div id="app" class="hidden">
+
+  <header>
+
+    <div class="topbar">
+
+      <div class="brand">
+        <span>💰</span>
+        <span>EarnNova</span>
+      </div>
+
+      <div class="xp">
+        ⭐ <span id="headerPoints">0</span> pts
+      </div>
+
+    </div>
+
+  </header>
+
+
+  <main>
+
+    <!-- HOME -->
+
+    <section id="homePage" class="page active">
+
+      <div class="welcome">
+        <h2>Hello, <span id="userName">EarnNova User</span> 👋</h2>
+        <p>Complete simple activities and earn rewards.</p>
+      </div>
+
+
+      <div class="balance-card">
+
+        <div class="balance-row">
+
+          <div>
+            <div class="balance-label">Your Balance</div>
+
+            <div class="balance">
+              <span id="balancePoints">0</span>
+              <span style="font-size:16px;">pts</span>
+            </div>
+
+            <div class="cash-value">
+              ≈ ₹<span id="balanceCash">0.00</span>
+            </div>
+          </div>
+
+          <button
+            class="withdraw-btn"
+            onclick="openWithdraw()"
+          >
+            Withdraw
+          </button>
+
+        </div>
+
+      </div>
+
+
+      <div class="stats-grid">
+
+        <div class="stat-card">
+          <div class="stat-icon">📅</div>
+          <h3 id="todayPoints">0</h3>
+          <p>Today's Earnings</p>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon">🎯</div>
+          <h3 id="totalTasks">0</h3>
+          <p>Tasks Completed</p>
+        </div>
+
+      </div>
+
+
+      <div class="bonus">
+
+        <div class="bonus-icon">🎁</div>
+
+        <div class="bonus-content">
+          <h4>Daily Bonus</h4>
+          <p>Claim your daily reward.</p>
+        </div>
+
+        <button
+          id="dailyBonusBtn"
+          class="bonus-btn"
+          onclick="claimDailyBonus()"
+        >
+          +500
+        </button>
+
+      </div>
+
+
+      <div class="section-title">
+        <h3>Quick Earn</h3>
+        <span onclick="openPage('earn')">View All</span>
+      </div>
+
+
+      <div class="task-list">
+
+        <div class="task">
+          <div class="task-icon">📺</div>
+
+          <div class="task-info">
+            <h4>Watch Ad</h4>
+            <p>Demo reward • 100 points</p>
+          </div>
+
+          <button
+            class="earn-btn"
+            onclick="demoEarn('Watch Ad',100)"
+          >
+            +100
+          </button>
+        </div>
+
+
+        <div class="task">
+          <div class="task-icon">⚡</div>
+
+          <div class="task-info">
+            <h4>Quick Task</h4>
+            <p>Complete a quick task</p>
+          </div>
+
+          <button
+            class="earn-btn"
+            onclick="demoEarn('Quick Task',500)"
+          >
+            +500
+          </button>
+        </div>
+
+
+        <div class="task">
+          <div class="task-icon">📝</div>
+
+          <div class="task-info">
+            <h4>Mini Quiz</h4>
+            <p>Answer a simple quiz</p>
+          </div>
+
+          <button
+            class="earn-btn"
+            onclick="demoEarn('Mini Quiz',300)"
+          >
+            +300
+          </button>
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- EARN -->
+
+    <section id="earnPage" class="page">
+
+      <div class="welcome">
+        <h2>Earn 💰</h2>
+        <p>Choose an earning opportunity.</p>
+      </div>
+
+
+      <div class="earn-grid">
+
+        <div class="earn-card">
+
+          <div class="big-icon">📱</div>
+
+          <div class="earn-card-content">
+            <h3>App Offers</h3>
+            <p>
+              Install and complete approved app offers.
+            </p>
+          </div>
+
+          <button onclick="showComingSoon('App Offers')">
+            Open
+          </button>
+
+        </div>
+
+
+        <div class="earn-card">
+
+          <div class="big-icon">🌐</div>
+
+          <div class="earn-card-content">
+            <h3>Website Offers</h3>
+            <p>
+              Visit approved advertiser websites and complete requirements.
+            </p>
+          </div>
+
+          <button onclick="showComingSoon('Website Offers')">
+            Open
+          </button>
+
+        </div>
+
+
+        <div class="earn-card">
+
+          <div class="big-icon">📋</div>
+
+          <div class="earn-card-content">
+            <h3>Surveys</h3>
+            <p>
+              Answer surveys and receive points after verification.
+            </p>
+          </div>
+
+          <button onclick="showComingSoon('Surveys')">
+            Open
+          </button>
+
+        </div>
+
+
+        <div class="earn-card">
+
+          <div class="big-icon">📺</div>
+
+          <div class="earn-card-content">
+            <h3>Watch Ads</h3>
+            <p>
+              Ad-based earning will be connected later.
+            </p>
+          </div>
+
+          <button onclick="demoEarn('Watch Ad',100)">
+            Earn
+          </button>
+
+        </div>
+
+
+        <div class="earn-card">
+
+          <div class="big-icon">⚡</div>
+
+          <div class="earn-card-content">
+            <h3>Quick Tasks</h3>
+            <p>
+              Simple tasks and activities.
+            </p>
+          </div>
+
+          <button onclick="demoEarn('Quick Task',500)">
+            Earn
+          </button>
+
+        </div>
+
+      </div>
+
+
+      <div class="section-title">
+        <h3>Demo Tasks</h3>
+      </div>
+
+      <div class="task-list">
+
+        <div class="task">
+
+          <div class="task-icon">🧠</div>
+
+          <div class="task-info">
+            <h4>Mini Quiz</h4>
+            <p>Demo • +300 points</p>
+          </div>
+
+          <button
+            class="earn-btn"
+            onclick="demoEarn('Mini Quiz',300)"
+          >
+            +300
+          </button>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- REWARDS -->
+
+    <section id="rewardsPage" class="page">
+
+      <div class="welcome">
+        <h2>Rewards 🎁</h2>
+        <p>Redeem your points for rewards.</p>
+      </div>
+
+
+      <div class="reward-grid">
+
+        <div class="reward">
+
+          <div class="reward-icon">💵</div>
+
+          <div class="reward-info">
+            <h3>₹10 Cash</h3>
+            <p>100,000 points</p>
+          </div>
+
+          <button
+            class="redeem-btn"
+            onclick="redeemReward(100000,'₹10 Cash')"
+          >
+            Redeem
+          </button>
+
+        </div>
+
+
+        <div class="reward">
+
+          <div class="reward-icon">💵</div>
+
+          <div class="reward-info">
+            <h3>₹50 Cash</h3>
+            <p>500,000 points</p>
+          </div>
+
+          <button
+            class="redeem-btn"
+            onclick="redeemReward(500000,'₹50 Cash')"
+          >
+            Redeem
+          </button>
+
+        </div>
+
+
+        <div class="reward">
+
+          <div class="reward-icon">💵</div>
+
+          <div class="reward-info">
+            <h3>₹100 Cash</h3>
+            <p>1,000,000 points</p>
+          </div>
+
+          <button
+            class="redeem-btn"
+            onclick="redeemReward(1000000,'₹100 Cash')"
+          >
+            Redeem
+          </button>
+
+        </div>
+
+      </div>
+
+
+      <div class="section-title">
+        <h3>Recent Earnings</h3>
+      </div>
+
+      <div id="historyList" class="history-list">
+        <p style="color:#777;font-size:13px;">
+          No earnings yet.
+        </p>
+      </div>
+
+    </section>
+
+
+    <!-- REFER -->
+
+    <section id="referPage" class="page">
+
+      <div class="welcome">
+        <h2>Refer & Earn 👥</h2>
+        <p>Invite friends and earn referral rewards.</p>
+      </div>
+
+
+      <div class="ref-card">
+
+        <h2>Invite Friends</h2>
+
+        <p>
+          Share your referral code with friends.
+          Referral rewards will be activated when the referral system
+          is connected to the backend.
+        </p>
+
+
+        <div class="ref-code">
+
+          <span id="refCode">
+            EARNNOVAX
+          </span>
+
+          <button
+            class="copy-btn"
+            onclick="copyReferral()"
+          >
+            COPY
+          </button>
+
+        </div>
+
+      </div>
+
+
+      <div class="section-title">
+        <h3>Referral Reward</h3>
+      </div>
+
+
+      <div class="task">
+
+        <div class="task-icon">🎁</div>
+
+        <div class="task-info">
+          <h4>Referral Bonus</h4>
+          <p>Potential reward • 2,000 points</p>
+        </div>
+
+        <span
+          style="
+            color:#777;
+            font-size:11px;
+            font-weight:700;
+          "
+        >
+          Coming Soon
+        </span>
+
+      </div>
+
+    </section>
+
+
+    <!-- PROFILE -->
+
+    <section id="profilePage" class="page">
+
+      <div class="welcome">
+        <h2>Profile 👤</h2>
+        <p>Your EarnNova account.</p>
+      </div>
+
+
+      <div class="profile-card">
+
+        <div class="avatar">👤</div>
+
+        <h2 id="profileName">
+          EarnNova User
+        </h2>
+
+        <p id="profileEmail">
+          user@example.com
+        </p>
+
+
+        <div class="profile-actions">
+
+          <div class="profile-action">
+            💰 Balance:
+            <span id="profilePoints">0</span> pts
+          </div>
+
+          <div class="profile-action">
+            📊 Tasks Completed:
+            <span id="profileTasks">0</span>
+          </div>
+
+          <div class="profile-action">
+            🔢 Conversion:
+            10,000 pts = ₹1
+          </div>
+
+          <button
+            class="profile-action logout"
+            onclick="logout()"
+          >
+            🚪 Logout
+          </button>
+
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+
+  <!-- BOTTOM NAV -->
+
+  <nav class="bottom-nav">
+
+    <button
+      class="nav-btn active"
+      data-page="home"
+      onclick="openPage('home')"
+    >
+      <div>🏠</div>
+      Home
+    </button>
+
+    <button
+      class="nav-btn"
+      data-page="earn"
+      onclick="openPage('earn')"
+    >
+      <div>💰</div>
+      Earn
+    </button>
+
+    <button
+      class="nav-btn"
+      data-page="rewards"
+      onclick="openPage('rewards')"
+    >
+      <div>🎁</div>
+      Rewards
+    </button>
+
+    <button
+      class="nav-btn"
+      data-page="refer"
+      onclick="openPage('refer')"
+    >
+      <div>👥</div>
+      Refer
+    </button>
+
+    <button
+      class="nav-btn"
+      data-page="profile"
+      onclick="openPage('profile')"
+    >
+      <div>👤</div>
+      Profile
+    </button>
+
+  </nav>
+
+</div>
+
+
+<!-- MODAL -->
+
+<div
+  id="modalBg"
+  class="modal-bg hidden"
+  onclick="closeModal(event)"
+>
+
+  <div class="modal" onclick="event.stopPropagation()">
+
+    <h2 id="modalTitle">
+      Coming Soon
+    </h2>
+
+    <p id="modalText">
+      This feature will be connected soon.
+    </p>
+
+    <button
+      class="modal-close"
+      onclick="hideModal()"
+    >
+      Close
+    </button>
+
+  </div>
+
+</div>
+
+
+<div id="toast"></div>
+
+
+<!-- ================= FIREBASE ================= -->
+
+<script type="module">
+
+  import { initializeApp }
+    from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
+
+  import {
+    getAuth,
+    createUserWithEmailAndPassword,
+    signInWithEmailAndPassword,
+    onAuthStateChanged,
+    signOut,
+    updateProfile
+  } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
+
+  import {
+    getFirestore,
+    doc,
+    getDoc,
+    setDoc,
+    updateDoc,
+    collection,
+    addDoc,
+    query,
+    orderBy,
+    limit,
+    getDocs,
+    runTransaction,
+    serverTimestamp
+  } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
+
+
+  /* ================= FIREBASE CONFIG ================= */
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyA554CVKVlzVr1-FmI6bAENnmM-gCNDE",
+    authDomain: "earn-nova-a397a.firebaseapp.com",
+    projectId: "earn-nova-a397a",
+    storageBucket: "earn-nova-a397a.firebasestorage.app",
+    messagingSenderId: "344440930104",
+    appId: "1:344440930104:web:053ebd474d4b5cd",
+    measurementId: "G-PDEGRX5T3V"
+  };
+
+
+  /* ================= INITIALIZE ================= */
+
+  const app = initializeApp(firebaseConfig);
+
+  const auth = getAuth(app);
+
+  const db = getFirestore(app);
+
+
+  /* ================= VARIABLES ================= */
+
+  let authMode = "login";
+
+  let currentUser = null;
+
+  let userData = null;
+
+
+  /* ================= AUTH UI ================= */
+
+  window.showAuth = function(mode) {
+
+    authMode = mode;
+
+    const loginTab =
+      document.getElementById("loginTab");
+
+    const signupTab =
+      document.getElementById("signupTab");
+
+    const authButton =
+      document.getElementById("authButton");
+
+    if (mode === "login") {
+
+      loginTab.classList.add("active");
+      signupTab.classList.remove("active");
+
+      authButton.textContent = "Login";
+
+    } else {
+
+      signupTab.classList.add("active");
+      loginTab.classList.remove("active");
+
+      authButton.textContent = "Create Account";
+
+    }
+
+    document.getElementById("authError").textContent = "";
+
+  };
+
+
+  /* ================= AUTH FORM ================= */
+
+  document
+    .getElementById("authForm")
+    .addEventListener("submit", async (e) => {
+
+      e.preventDefault();
+
+      const email =
+        document.getElementById("email").value.trim();
+
+      const password =
+        document.getElementById("password").value;
+
+      const errorBox =
+        document.getElementById("authError");
+
+      errorBox.textContent = "";
+
+      try {
+
+        if (authMode === "login") {
+
+          await signInWithEmailAndPassword(
+            auth,
+            email,
+            password
+          );
+
+        } else {
+
+          const result =
+            await createUserWithEmailAndPassword(
+              auth,
+              email,
+              password
+            );
+
+          const name =
+            email.split("@")[0];
+
+          await updateProfile(
+            result.user,
+            {
+              displayName: name
+            }
+          );
+
+          await createUserDocument(
+            result.user,
+            name
+          );
+
+          showToast("Account created successfully 🎉");
+
+        }
+
+      } catch (error) {
+
+        console.error(error);
+
+        errorBox.textContent =
+          friendlyAuthError(error.code);
+
+      }
+
+    });
+
+
+  function friendlyAuthError(code) {
+
+    switch (code) {
+
+      case "auth/invalid-credential":
+        return "Invalid email or password.";
+
+      case "auth/email-already-in-use":
+        return "This email is already registered.";
+
+      case "auth/weak-password":
+        return "Password should be at least 6 characters.";
+
+      case "auth/invalid-email":
+        return "Please enter a valid email.";
+
+      case "auth/too-many-requests":
+        return "Too many attempts. Try again later.";
+
+      default:
+        return "Something went wrong. Please try again.";
+
+    }
+
+  }
+
+
+  /* ================= USER DOCUMENT ================= */
+
+  async function createUserDocument(user, name) {
+
+    const userRef =
+      doc(db, "users", user.uid);
+
+    const existing =
+      await getDoc(userRef);
+
+    if (existing.exists()) {
+      return;
+    }
+
+    const referralCode =
+      "EN" +
+      user.uid
+        .substring(0, 7)
+        .toUpperCase();
+
+    await setDoc(userRef, {
+
+      uid: user.uid,
+
+      email: user.email,
+
+      name: name,
+
+      points: 0,
+
+      todayPoints: 0,
+
+      totalTasks: 0,
+
+      referralCode: referralCode,
+
+      lastBonusDate: "",
+
+      createdAt: serverTimestamp()
+
+    });
+
+  }
+
+
+  /* ================= AUTH STATE ================= */
+
+  onAuthStateChanged(auth, async (user) => {
+
+    if (user) {
+
+      currentUser = user;
+
+      await loadUserData();
+
+      document
+        .getElementById("authScreen")
+        .classList.add("hidden");
+
+      document
+        .getElementById("app")
+        .classList.remove("hidden");
+
+      updateUI();
+
+    } else {
+
+      currentUser = null;
+      userData = null;
+
+      document
+        .getElementById("app")
+        .classList.add("hidden");
+
+      document
+        .getElementById("authScreen")
+        .classList.remove("hidden");
+
+    }
+
+  });
+
+
+  /* ================= LOAD USER ================= */
+
+  async function loadUserData() {
+
+    if (!currentUser) return;
+
+    const userRef =
+      doc(db, "users", currentUser.uid);
+
+    let snapshot =
+      await getDoc(userRef);
+
+    if (!snapshot.exists()) {
+
+      await createUserDocument(
+        currentUser,
+        currentUser.displayName ||
+        currentUser.email.split("@")[0]
+      );
+
+      snapshot =
+        await getDoc(userRef);
+
+    }
+
+    userData = snapshot.data();
+
+    await loadHistory();
+
+  }
+
+
+  /* ================= UPDATE UI ================= */
+
+  function updateUI() {
+
+    if (!userData) return;
+
+    const points =
+      Number(userData.points || 0);
+
+    const today =
+      Number(userData.todayPoints || 0);
+
+    const tasks =
+      Number(userData.totalTasks || 0);
+
+    const cash =
+      points / 10000;
+
+
+    document
+      .getElementById("headerPoints")
+      .textContent =
+      points.toLocaleString();
+
+
+    document
+      .getElementById("balancePoints")
+      .textContent =
+      points.toLocaleString();
+
+
+    document
+      .getElementById("balanceCash")
+      .textContent =
+      cash.toFixed(2);
+
+
+    document
+      .getElementById("todayPoints")
+      .textContent =
+      today.toLocaleString();
+
+
+    document
+      .getElementById("totalTasks")
+      .textContent =
+      tasks.toLocaleString();
+
+
+    document
+      .getElementById("profilePoints")
+      .textContent =
+      points.toLocaleString();
+
+
+    document
+      .getElementById("profileTasks")
+      .textContent =
+      tasks.toLocaleString();
+
+
+    const name =
+      userData.name ||
+      currentUser.displayName ||
+      currentUser.email.split("@")[0];
+
+
+    document
+      .getElementById("userName")
+      .textContent =
+      name;
+
+
+    document
+      .getElementById("profileName")
+      .textContent =
+      name;
+
+
+    document
+      .getElementById("profileEmail")
+      .textContent =
+      currentUser.email;
+
+
+    document
+      .getElementById("refCode")
+      .textContent =
+      userData.referralCode ||
+      "EARNNOVA";
+
+
+    updateDailyButton();
+
+  }
+
+
+  /* ================= DAILY BONUS ================= */
+
+  function todayString() {
+
+    const d = new Date();
+
+    return d.getFullYear() +
+      "-" +
+      String(d.getMonth() + 1).padStart(2, "0") +
+      "-" +
+      String(d.getDate()).padStart(2, "0");
+
+  }
+
+
+  function updateDailyButton() {
+
+    const btn =
+      document.getElementById("dailyBonusBtn");
+
+    if (!userData) return;
+
+    if (
+      userData.lastBonusDate ===
+      todayString()
+    ) {
+
+      btn.textContent = "Claimed";
+
+      btn.disabled = true;
+
+      btn.style.opacity = ".5";
+
+    } else {
+
+      btn.textContent = "+500";
+
+      btn.disabled = false;
+
+      btn.style.opacity = "1";
+
+    }
+
+  }
+
+
+  window.claimDailyBonus = async function() {
+
+    if (!currentUser || !userData) return;
+
+    const userRef =
+      doc(db, "users", currentUser.uid);
+
+    try {
+
+      await runTransaction(db, async (transaction) => {
+
+        const snap =
+          await transaction.get(userRef);
+
+        const data =
+          snap.data();
+
+        const today =
+          todayString();
+
+        if (
+          data.lastBonusDate === today
+        ) {
+
+          throw new Error(
+            "Daily bonus already claimed."
+          );
+
+        }
+
+        const newPoints =
+          Number(data.points || 0) + 500;
+
+        const newToday =
+          Number(data.todayPoints || 0) + 500;
+
+
+        transaction.update(userRef, {
+
+          points: newPoints,
+
+          todayPoints: newToday,
+
+          lastBonusDate: today
+
+        });
+
+      });
+
+
+      await addHistory(
+        "Daily Bonus",
+        500,
+        "🎁"
+      );
+
+      await loadUserData();
+
+      updateUI();
+
+      showToast(
+        "🎉 Daily bonus: +500 points"
+      );
+
+    } catch (error) {
+
+      showToast(
+        error.message ||
+        "Unable to claim bonus."
+      );
+
+    }
+
+  };
+
+
+  /* ================= DEMO EARN ================= */
+
+  window.demoEarn = async function(title, amount) {
+
+    if (!currentUser || !userData) return;
+
+    const userRef =
+      doc(db, "users", currentUser.uid);
+
+    try {
+
+      await runTransaction(db, async (transaction) => {
+
+        const snap =
+          await transaction.get(userRef);
+
+        const data =
+          snap.data();
+
+        const newPoints =
+          Number(data.points || 0) + amount;
+
+        const newToday =
+          Number(data.todayPoints || 0) + amount;
+
+        const newTasks =
+          Number(data.totalTasks || 0) + 1;
+
+
+        transaction.update(userRef, {
+
+          points: newPoints,
+
+          todayPoints: newToday,
+
+          totalTasks: newTasks
+
+        });
+
+      });
+
+
+      await addHistory(
+        title,
+        amount,
+        "⚡"
+      );
+
+      await loadUserData();
+
+      updateUI();
+
+      showToast(
+        `+${amount.toLocaleString()} points earned!`
+      );
+
+    } catch (error) {
+
+      console.error(error);
+
+      showToast(
+        "Unable to add points."
+      );
+
+    }
+
+  };
+
+
+  /* ================= HISTORY ================= */
+
+  async function addHistory(
+    title,
+    points,
+    icon
+  ) {
+
+    if (!currentUser) return;
+
+    await addDoc(
+
+      collection(
+        db,
+        "users",
+        currentUser.uid,
+        "history"
+      ),
+
+      {
+
+        title: title,
+
+        points: points,
+
+        icon: icon,
+
+        createdAt: serverTimestamp()
+
+      }
+
+    );
+
+  }
+
+
+  async function loadHistory() {
+
+    if (!currentUser) return;
+
+    const historyRef =
+      collection(
+        db,
+        "users",
+        currentUser.uid,
+        "history"
+      );
+
+    const q =
+      query(
+        historyRef,
+        orderBy("createdAt", "desc"),
+        limit(20)
+      );
+
+    try {
+
+      const snapshot =
+        await getDocs(q);
+
+      const list =
+        document.getElementById(
+          "historyList"
+        );
+
+      list.innerHTML = "";
+
+      if (snapshot.empty) {
+
+        list.innerHTML =
+          `<p style="color:#777;font-size:13px;">
+            No earnings yet.
+          </p>`;
+
+        return;
+
+      }
+
+      snapshot.forEach(docSnap => {
+
+        const data =
+          docSnap.data();
+
+        const date =
+          data.createdAt
+            ?.toDate()
+            ?.toLocaleString() ||
+          "Recently";
+
+
+        const item =
+          document.createElement("div");
+
+        item.className =
+          "history-item";
+
+        item.innerHTML = `
+
+          <div class="history-icon">
+            ${data.icon || "💰"}
+          </div>
+
+          <div class="history-info">
+            <strong>${escapeHTML(data.title || "Earning")}</strong>
+            <small>${escapeHTML(date)}</small>
+          </div>
+
+          <div class="history-points">
+            +${Number(data.points || 0).toLocaleString()}
+          </div>
+
+        `;
+
+        list.appendChild(item);
+
+      });
+
+    } catch (error) {
+
+      console.log(
+        "History will appear after first earning."
+      );
+
+    }
+
+  }
+
+
+  function escapeHTML(value) {
+
+    return String(value)
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
+
+  }
+
+
+  /* ================= REWARDS ================= */
+
+  window.redeemReward =
+    async function(pointsRequired, rewardName) {
+
+    if (!currentUser || !userData) return;
+
+    const currentPoints =
+      Number(userData.points || 0);
+
+    if (currentPoints < pointsRequired) {
+
+      showToast(
+        `You need ${(
+          pointsRequired - currentPoints
+        ).toLocaleString()} more points.`
+      );
+
+      return;
+
+    }
+
+
+    /*
+      IMPORTANT:
+      This demo does not send real money.
+      It only creates a redemption request.
+    */
+
+    try {
+
+      await addDoc(
+
+        collection(
+          db,
+          "users",
+          currentUser.uid,
+          "withdrawals"
+        ),
+
+        {
+
+          reward: rewardName,
+
+          points: pointsRequired,
+
+          status: "pending",
+
+          createdAt: serverTimestamp()
+
+        }
+
+      );
+
+
+      showToast(
+        "Withdrawal request submitted for review."
+      );
+
+    } catch (error) {
+
+      console.error(error);
+
+      showToast(
+        "Could not submit withdrawal request."
+      );
+
+    }
+
+  };
+
+
+  /* ================= WITHDRAW ================= */
+
+  window.openWithdraw = function() {
+
+    showModal(
+
+      "Withdraw",
+
+      "Minimum withdrawal is ₹10. You need at least 100,000 points. Real payment processing will be connected after the backend and payout system are ready."
+
+    );
+
+  };
+
+
+  /* ================= REFERRAL ================= */
+
+  window.copyReferral = async function() {
+
+    const code =
+      document.getElementById(
+        "refCode"
+      ).textContent;
+
+    try {
+
+      await navigator.clipboard.writeText(code);
+
+      showToast(
+        "Referral code copied!"
+      );
+
+    } catch {
+
+      showToast(
+        "Referral code: " + code
+      );
+
+    }
+
+  };
+
+
+  /* ================= NAVIGATION ================= */
+
+  window.openPage = function(page) {
+
+    document
+      .querySelectorAll(".page")
+      .forEach(p => {
+        p.classList.remove("active");
+      });
+
+
+    const target =
+      document.getElementById(
+        page + "Page"
+      );
+
+    if (target) {
+
+      target.classList.add("active");
+
+    }
+
+
+    document
+      .querySelectorAll(".nav-btn")
+      .forEach(btn => {
+
+        btn.classList.remove("active");
+
+        if (
+          btn.dataset.page === page
+        ) {
+
+          btn.classList.add("active");
+
+        }
+
+      });
+
+
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth"
+    });
+
+  };
+
+
+  /* ================= COMING SOON ================= */
+
+  window.showComingSoon =
+    function(feature) {
+
+    showModal(
+
+      feature,
+
+      `${feature} will be connected through a verified offer/survey provider. Users will receive points only after the provider confirms completion.`
+
+    );
+
+  };
+
+
+  /* ================= MODAL ================= */
+
+  function showModal(title, text) {
+
+    document
+      .getElementById("modalTitle")
+      .textContent =
+      title;
+
+    document
+      .getElementById("modalText")
+      .textContent =
+      text;
+
+    document
+      .getElementById("modalBg")
+      .classList.remove("hidden");
+
+  }
+
+
+  window.hideModal = function() {
+
+    document
+      .getElementById("modalBg")
+      .classList.add("hidden");
+
+  };
+
+
+  window.closeModal = function(event) {
+
+    if (
+      event.target.id === "modalBg"
+    ) {
+
+      hideModal();
+
+    }
+
+  };
+
+
+  /* ================= LOGOUT ================= */
+
+  window.logout = async function() {
+
+    try {
+
+      await signOut(auth);
+
+      showToast("Logged out.");
+
+    } catch (error) {
+
+      showToast(
+        "Unable to logout."
+      );
+
+    }
+
+  };
+
+
+  /* ================= TOAST ================= */
+
+  function showToast(message) {
+
+    const toast =
+      document.getElementById("toast");
+
+    toast.textContent =
+      message;
+
+    toast.classList.add("show");
+
+    setTimeout(() => {
+
+      toast.classList.remove("show");
+
+    }, 2800);
+
+  }
+
+
+  window.showToast = showToast;
+
+</script>
+
+</body>
+</html>
