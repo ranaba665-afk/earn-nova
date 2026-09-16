@@ -63,7 +63,18 @@ export default async function handler(req, res) {
     }
 
     const postbackRef = db.collection("adgemPostbacks").doc(requestId);
-    const userRef = db.collection("users").doc(playerId);
+    const usersQuery = await db
+      .collection("users")
+      .where("adgemPlayerId", "==", playerId)
+      .limit(1)
+      .get();
+
+    if (usersQuery.empty) {
+      console.error("Postback for unknown player_id", playerId);
+      return res.status(404).send("User not found");
+    }
+
+    const userRef = usersQuery.docs[0].ref;
 
     await db.runTransaction(async (tx) => {
       const postbackDoc = await tx.get(postbackRef);
