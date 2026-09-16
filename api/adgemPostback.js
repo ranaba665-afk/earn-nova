@@ -1,22 +1,33 @@
-const admin = require("firebase-admin");
-const crypto = require("crypto");
+import admin from "firebase-admin";
+import crypto from "crypto";
 
-// Initialize firebase-admin once (Vercel reuses the process between calls)
-if (!admin.apps.length) {
-  admin.initializeApp({
+function getFirebaseAdmin() {
+  if (admin.apps.length) {
+    return admin.app();
+  }
+
+  const projectId = process.env.FIREBASE_PROJECT_ID;
+  const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
+  const privateKey = process.env.FIREBASE_PRIVATE_KEY;
+
+  if (!projectId || !clientEmail || !privateKey) {
+    throw new Error("Firebase Admin environment variables are missing.");
+  }
+
+  return admin.initializeApp({
     credential: admin.credential.cert({
-      projectId: process.env.FIREBASE_PROJECT_ID,
-      clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-      // Vercel env vars store newlines as literal \n — convert them back
-      privateKey: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, "\n"),
+      projectId,
+      clientEmail,
+      privateKey: privateKey.replace(/\\n/g, "\n"),
     }),
   });
 }
 
-const db = admin.firestore();
-
-module.exports = async (req, res) => {
+export default async function handler(req, res) {
   try {
+    const firebaseApp = getFirebaseAdmin();
+    const db = admin.firestore();
+
     const query = req.query;
     const verifier = query.verifier;
     const playerId = query.player_id;
@@ -100,4 +111,4 @@ module.exports = async (req, res) => {
     console.error("Postback processing error:", err);
     return res.status(500).send("Internal error");
   }
-};
+}
