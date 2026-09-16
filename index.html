@@ -945,7 +945,7 @@
 
       <button  
         class="earn-btn"  
-        onclick="demoEarn('Watch Ad',100)"  
+        onclick="demoEarn('demo_watch_ad')"  
       >  
         +100  
       </button>  
@@ -962,7 +962,7 @@
 
       <button  
         class="earn-btn"  
-        onclick="demoEarn('Quick Task',500)"  
+        onclick="demoEarn('demo_quick_task')"  
       >  
         +500  
       </button>  
@@ -979,7 +979,7 @@
 
       <button  
         class="earn-btn"  
-        onclick="demoEarn('Mini Quiz',300)"  
+        onclick="demoEarn('demo_quiz')"  
       >  
         +300  
       </button>  
@@ -1067,7 +1067,7 @@
         </p>  
       </div>  
 
-      <button onclick="demoEarn('Watch Ad',100)">  
+      <button onclick="demoEarn('demo_watch_ad')">  
         Earn  
       </button>  
 
@@ -1085,7 +1085,7 @@
         </p>  
       </div>  
 
-      <button onclick="demoEarn('Quick Task',500)">  
+      <button onclick="demoEarn('demo_quick_task')">  
         Earn  
       </button>  
 
@@ -1111,7 +1111,7 @@
 
       <button  
         class="earn-btn"  
-        onclick="demoEarn('Mini Quiz',300)"  
+        onclick="demoEarn('demo_quiz')"  
       >  
         +300  
       </button>  
@@ -1873,64 +1873,43 @@
   
     if (!currentUser || !userData) return;  
   
-    const userRef =  
-      doc(db, "users", currentUser.uid);  
-  
     try {  
   
-      await runTransaction(db, async (transaction) => {  
+      const idToken =  
+        await currentUser.getIdToken();  
   
-        const snap =  
-          await transaction.get(userRef);  
+      const claimId =  
+        "daily-" + todayString();  
   
-        const data =  
-          snap.data();  
-  
-        const today =  
-          todayString();  
-  
-        if (  
-          data.lastBonusDate === today  
-        ) {  
-  
-          throw new Error(  
-            "Daily bonus already claimed."  
-          );  
-  
-        }  
-  
-        const newPoints =  
-          Number(data.points || 0) + 500;  
-  
-        const newToday =  
-          Number(data.todayPoints || 0) + 500;  
-  
-  
-        transaction.update(userRef, {  
-  
-          points: newPoints,  
-  
-          todayPoints: newToday,  
-  
-          lastBonusDate: today  
-  
+      const response =  
+        await fetch("/api/earn", {  
+          method: "POST",  
+          headers: {  
+            "Content-Type": "application/json",  
+            "Authorization": "Bearer " + idToken  
+          },  
+          body: JSON.stringify({  
+            taskId: "daily_bonus",  
+            claimId: claimId,  
+            dateString: todayString()  
+          })  
         });  
   
-      });  
+      const result =  
+        await response.json();  
   
-  
-      await addHistory(  
-        "Daily Bonus",  
-        500,  
-        "🎁"  
-      );  
+      if (!response.ok || !result.success) {  
+        throw new Error(  
+          result.error || "Unable to claim bonus."  
+        );  
+      }  
   
       await loadUserData();  
   
       updateUI();  
   
       showToast(  
-        "🎉 Daily bonus: +500 points"  
+        "🎉 Daily bonus: +" + result.points + " points"  
       );  
   
     } catch (error) {  
@@ -1947,58 +1926,46 @@
   
   /* ================= DEMO EARN ================= */  
   
-  window.demoEarn = async function(title, amount) {  
+  window.demoEarn = async function(taskId) {  
   
     if (!currentUser || !userData) return;  
   
-    const userRef =  
-      doc(db, "users", currentUser.uid);  
-  
     try {  
   
-      await runTransaction(db, async (transaction) => {  
+      const idToken =  
+        await currentUser.getIdToken();  
   
-        const snap =  
-          await transaction.get(userRef);  
+      const claimId =  
+        taskId + "-" + Date.now();  
   
-        const data =  
-          snap.data();  
-  
-        const newPoints =  
-          Number(data.points || 0) + amount;  
-  
-        const newToday =  
-          Number(data.todayPoints || 0) + amount;  
-  
-        const newTasks =  
-          Number(data.totalTasks || 0) + 1;  
-  
-  
-        transaction.update(userRef, {  
-  
-          points: newPoints,  
-  
-          todayPoints: newToday,  
-  
-          totalTasks: newTasks  
-  
+      const response =  
+        await fetch("/api/earn", {  
+          method: "POST",  
+          headers: {  
+            "Content-Type": "application/json",  
+            "Authorization": "Bearer " + idToken  
+          },  
+          body: JSON.stringify({  
+            taskId: taskId,  
+            claimId: claimId  
+          })  
         });  
   
-      });  
+      const result =  
+        await response.json();  
   
-  
-      await addHistory(  
-        title,  
-        amount,  
-        "⚡"  
-      );  
+      if (!response.ok || !result.success) {  
+        throw new Error(  
+          result.error || "Unable to add points."  
+        );  
+      }  
   
       await loadUserData();  
   
       updateUI();  
   
       showToast(  
-        `+${amount.toLocaleString()} points earned!`  
+        `+${result.points.toLocaleString()} points earned!`  
       );  
   
     } catch (error) {  
@@ -2006,6 +1973,7 @@
       console.error(error);  
   
       showToast(  
+        error.message ||  
         "Unable to add points."  
       );  
   
