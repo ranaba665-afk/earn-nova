@@ -2327,13 +2327,20 @@
     }  
   
     const appId = "33560";  
+    const playerId = currentUser.uid.toLowerCase();  
     const frame = document.getElementById("adgemWallFrame");  
   
+    // AdGem requires playerid to be lowercase alphanumeric, but our  
+    // Firestore doc IDs (Firebase UIDs) are mixed-case. Save the lowercase  
+    // mapping on the user's own doc so the postback function can find them.  
+    const userRef = doc(db, "users", currentUser.uid);  
+    setDoc(userRef, { adgemPlayerId: playerId }, { merge: true });  
+  
     frame.src =  
-      "https://adunits.adgem.com/v1/wall?appid=" +  
+      "https://api.adgem.com/v1/wall?appid=" +  
       appId +  
       "&playerid=" +  
-      currentUser.uid;  
+      playerId;  
   
     openPage("offerwall");  
   
