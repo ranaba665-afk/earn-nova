@@ -77,7 +77,8 @@ export default async function handler(req, res) {
 
     const {
       taskId,
-      claimId
+      claimId,
+      dateString
     } = req.body || {};
 
 
@@ -113,6 +114,12 @@ export default async function handler(req, res) {
         title: "Mini Quiz",
         points: 300,
         icon: "🧠"
+      },
+
+      daily_bonus: {
+        title: "Daily Bonus",
+        points: 500,
+        icon: "🎁"
       }
 
     };
@@ -171,10 +178,14 @@ export default async function handler(req, res) {
 
 
       // Prevent duplicate reward
+      // (for daily_bonus, claimId is date-based, so this also
+      // naturally enforces "once per day")
       if (claimSnap.exists) {
 
         throw new Error(
-          "This earning has already been claimed."
+          taskId === "daily_bonus"
+            ? "Daily bonus already claimed."
+            : "This earning has already been claimed."
         );
 
       }
@@ -204,8 +215,7 @@ export default async function handler(req, res) {
         currentTasks + 1;
 
 
-      // Update user
-      transaction.update(userRef, {
+      const userUpdate = {
 
         points: newPoints,
 
@@ -213,7 +223,15 @@ export default async function handler(req, res) {
 
         totalTasks: newTotalTasks
 
-      });
+      };
+
+      if (taskId === "daily_bonus" && dateString) {
+        userUpdate.lastBonusDate = dateString;
+      }
+
+
+      // Update user
+      transaction.update(userRef, userUpdate);
 
 
       // Save claim
@@ -270,7 +288,9 @@ export default async function handler(req, res) {
 
     if (
       error.message ===
-      "This earning has already been claimed."
+      "This earning has already been claimed." ||
+      error.message ===
+      "Daily bonus already claimed."
     ) {
 
       return res.status(409).json({
