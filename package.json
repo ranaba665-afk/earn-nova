@@ -1,8 +1,7 @@
 {
   "name": "earnnova",
   "version": "1.0.0",
-  "type": "module",
   "dependencies": {
-    "firebase-admin": "^13.5.0"
+    "firebase-admin": "^12.0.0"
   }
 }
