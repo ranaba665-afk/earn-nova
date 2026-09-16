@@ -1013,7 +1013,7 @@
         </p>  
       </div>  
 
-      <button onclick="showComingSoon('App Offers')">  
+      <button onclick="openOfferwall()">  
         Open  
       </button>  
 
@@ -1031,7 +1031,7 @@
         </p>  
       </div>  
 
-      <button onclick="showComingSoon('Website Offers')">  
+      <button onclick="openOfferwall()">  
         Open  
       </button>  
 
@@ -1119,6 +1119,31 @@
     </div>  
 
   </div>  
+
+</section>  
+
+
+<!-- ADGEM OFFERWALL -->  
+
+<section id="offerwallPage" class="page">  
+
+  <div class="welcome">  
+    <h2>Offers 🎁</h2>  
+    <p>Complete offers below to earn real points.</p>  
+  </div>  
+
+  <button  
+    onclick="openPage('earn')"  
+    style="margin:0 16px 12px; padding:8px 16px; border-radius:10px; border:1px solid #ddd; background:#fff;"  
+  >  
+    ← Back  
+  </button>  
+
+  <iframe  
+    id="adgemWallFrame"  
+    src=""  
+    style="width:100%; height:75vh; border:0; display:block;"  
+  ></iframe>  
 
 </section>  
 
@@ -2288,6 +2313,29 @@
       top: 0,  
       behavior: "smooth"  
     });  
+  
+  };  
+  
+  
+  /* ================= ADGEM OFFERWALL ================= */  
+  
+  window.openOfferwall = function() {  
+  
+    if (!currentUser) {  
+      showToast("Please log in first");  
+      return;  
+    }  
+  
+    const appId = "33560";  
+    const frame = document.getElementById("adgemWallFrame");  
+  
+    frame.src =  
+      "https://adunits.adgem.com/v1/wall?appid=" +  
+      appId +  
+      "&playerid=" +  
+      currentUser.uid;  
+  
+    openPage("offerwall");  
   
   };  
   
