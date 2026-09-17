@@ -31,13 +31,48 @@ export default async function handler(req, res) {
     const query = req.query;
     const verifier = query.verifier;
     const playerId = query.player_id;
-    const amount = Number(query.amount || 0);
     const requestId = query.request_id;
     const offerName = query.offer_name || "AdGem Offer";
+    const payoutUsd = Number(query.payout || 0);
+    const presetAmount = Number(query.amount || 0);
 
-    if (!verifier || !playerId || !requestId || !amount) {
+    if (!verifier || !playerId || !requestId) {
       console.error("Missing required postback params", query);
       return res.status(400).send("Missing required parameters");
+    }
+
+    // ============ REVENUE SHARE CALCULATION ============
+    // We pay the user a share of what AdGem actually pays us for
+    // the conversion (the {payout} macro, in USD) rather than a
+    // flat preset reward. Tune these via Vercel env vars any time
+    // without touching code.
+    const REVENUE_SHARE_PERCENT =
+      Number(process.env.REVENUE_SHARE_PERCENT || 0.40); // user gets 40%
+    const USD_TO_INR_RATE =
+      Number(process.env.USD_TO_INR_RATE || 88); // approximate, update as needed
+    const POINTS_PER_RUPEE = 10000; // matches the site's 10,000 pts = ₹1 rate
+
+    let amount;
+
+    if (payoutUsd > 0) {
+      const userShareInr =
+        payoutUsd * USD_TO_INR_RATE * REVENUE_SHARE_PERCENT;
+      amount = Math.round(userShareInr * POINTS_PER_RUPEE);
+    } else if (presetAmount > 0) {
+      // Fallback for the rare offer that doesn't report a payout value
+      console.warn("No payout macro received, falling back to amount", {
+        requestId,
+        playerId,
+      });
+      amount = presetAmount;
+    } else {
+      console.error("Missing both payout and amount", query);
+      return res.status(400).send("Missing payout/amount");
+    }
+
+    if (amount <= 0) {
+      console.error("Computed non-positive amount", { requestId, amount });
+      return res.status(400).send("Invalid computed amount");
     }
 
     // Rebuild the full request URL, then strip the verifier param,
@@ -95,6 +130,7 @@ export default async function handler(req, res) {
       tx.set(postbackRef, {
         playerId,
         amount,
+        payoutUsd,
         offerName,
         processedAt: admin.firestore.FieldValue.serverTimestamp(),
         raw: query,
