@@ -120,6 +120,30 @@ export default async function handler(req, res) {
         title: "Daily Bonus",
         points: 500,
         icon: "🎁"
+      },
+
+      streak_3: {
+        title: "3-Day Streak",
+        points: 500,
+        icon: "🔥"
+      },
+
+      streak_7: {
+        title: "7-Day Streak",
+        points: 1000,
+        icon: "🔥"
+      },
+
+      streak_15: {
+        title: "15-Day Streak",
+        points: 2500,
+        icon: "🔥"
+      },
+
+      streak_30: {
+        title: "30-Day Streak",
+        points: 10000,
+        icon: "🔥"
       }
 
     };
