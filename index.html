@@ -1102,8 +1102,8 @@
         </p>  
       </div>  
 
-      <button onclick="demoEarn('demo_quick_task')">  
-        Earn  
+      <button onclick="openSocialTasks()">  
+        Open  
       </button>  
 
     </div>  
@@ -1161,6 +1161,69 @@
     src=""  
     style="width:100%; height:75vh; border:0; display:block;"  
   ></iframe>  
+
+</section>  
+
+
+<!-- SOCIAL TASKS -->  
+
+<section id="socialTasksPage" class="page">  
+
+  <div class="welcome">  
+    <h2>Quick Tasks ⚡</h2>  
+    <p>Complete both to earn 10,000 points.</p>  
+  </div>  
+
+  <button  
+    onclick="openPage('earn')"  
+    style="margin:0 16px 12px; padding:8px 16px; border-radius:10px; border:1px solid #ddd; background:#fff;"  
+  >  
+    ← Back  
+  </button>  
+
+  <div style="margin:0 16px;">  
+
+    <div class="task" style="margin-bottom:12px;">  
+      <div class="task-icon">📺</div>  
+      <div class="task-info">  
+        <h4>Subscribe on YouTube</h4>  
+        <p>Visit our YouTube channel</p>  
+      </div>  
+      <button  
+        id="youtubeTaskBtn"  
+        class="earn-btn"  
+        onclick="visitSocialLink('youtube')"  
+      >  
+        Visit  
+      </button>  
+    </div>  
+
+    <div class="task" style="margin-bottom:12px;">  
+      <div class="task-icon">✈️</div>  
+      <div class="task-info">  
+        <h4>Subscribe on Telegram</h4>  
+        <p>Join our Telegram channel</p>  
+      </div>  
+      <button  
+        id="telegramTaskBtn"  
+        class="earn-btn"  
+        onclick="visitSocialLink('telegram')"  
+      >  
+        Visit  
+      </button>  
+    </div>  
+
+    <button  
+      id="claimSocialBtn"  
+      class="earn-btn"  
+      style="width:100%; margin-top:8px; padding:14px; opacity:.5;"  
+      disabled  
+      onclick="claimSocialBonus()"  
+    >  
+      Claim +10,000  
+    </button>  
+
+  </div>  
 
 </section>  
 
@@ -2454,6 +2517,147 @@
       playerId;  
   
     openPage("offerwall");  
+  
+  };  
+  
+  
+  /* ================= SOCIAL TASKS ================= */  
+  
+  const SOCIAL_LINKS = {  
+    youtube: "https://www.youtube.com/@earn_nova",  
+    telegram: "https://t.me/earn_nova_01"  
+  };  
+  
+  
+  window.openSocialTasks = function() {  
+  
+    if (!currentUser) {  
+      showToast("Please log in first");  
+      return;  
+    }  
+  
+    renderSocialTasks();  
+  
+    openPage("socialTasks");  
+  
+  };  
+  
+  
+  window.visitSocialLink = async function(platform) {  
+  
+    window.open(SOCIAL_LINKS[platform], "_blank");  
+  
+    const userRef =  
+      doc(db, "users", currentUser.uid);  
+  
+    const field =  
+      "visited" +  
+      platform.charAt(0).toUpperCase() +  
+      platform.slice(1);  
+  
+    await updateDoc(userRef, { [field]: true });  
+  
+    userData[field] = true;  
+  
+    renderSocialTasks();  
+  
+  };  
+  
+  
+  function renderSocialTasks() {  
+  
+    if (!userData) return;  
+  
+    const ytBtn =  
+      document.getElementById("youtubeTaskBtn");  
+  
+    const tgBtn =  
+      document.getElementById("telegramTaskBtn");  
+  
+    const claimBtn =  
+      document.getElementById("claimSocialBtn");  
+  
+    if (userData.visitedYoutube) {  
+      ytBtn.textContent = "✅ Visited";  
+      ytBtn.disabled = true;  
+    }  
+  
+    if (userData.visitedTelegram) {  
+      tgBtn.textContent = "✅ Visited";  
+      tgBtn.disabled = true;  
+    }  
+  
+    if (userData.socialSubscribeClaimed) {  
+  
+      claimBtn.textContent = "Already Claimed";  
+      claimBtn.disabled = true;  
+      claimBtn.style.opacity = ".5";  
+  
+    } else if (  
+      userData.visitedYoutube &&  
+      userData.visitedTelegram  
+    ) {  
+  
+      claimBtn.disabled = false;  
+      claimBtn.style.opacity = "1";  
+  
+    } else {  
+  
+      claimBtn.disabled = true;  
+      claimBtn.style.opacity = ".5";  
+  
+    }  
+  
+  }  
+  
+  
+  window.claimSocialBonus = async function() {  
+  
+    try {  
+  
+      const idToken =  
+        await currentUser.getIdToken();  
+  
+      const response =  
+        await fetch("/api/earn", {  
+          method: "POST",  
+          headers: {  
+            "Content-Type": "application/json",  
+            "Authorization": "Bearer " + idToken  
+          },  
+          body: JSON.stringify({  
+            taskId: "social_subscribe",  
+            claimId: "social_subscribe"  
+          })  
+        });  
+  
+      const result =  
+        await response.json();  
+  
+      if (!response.ok || !result.success) {  
+        throw new Error(  
+          result.error || "Unable to claim reward."  
+        );  
+      }  
+  
+      await loadUserData();  
+  
+      updateUI();  
+  
+      renderSocialTasks();  
+  
+      showToast(  
+        `🎉 +${result.points.toLocaleString()} points!`  
+      );  
+  
+    } catch (error) {  
+  
+      showToast(  
+        error.message ||  
+        "Unable to claim reward."  
+      );  
+  
+    }  
   
   };  
   
