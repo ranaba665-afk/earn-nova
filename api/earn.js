@@ -144,6 +144,12 @@ export default async function handler(req, res) {
         title: "30-Day Streak",
         points: 10000,
         icon: "🔥"
+      },
+
+      social_subscribe: {
+        title: "YouTube + Telegram Subscribe",
+        points: 10000,
+        icon: "📢"
       }
 
     };
@@ -209,6 +215,8 @@ export default async function handler(req, res) {
         throw new Error(
           taskId === "daily_bonus"
             ? "Daily bonus already claimed."
+            : taskId === "social_subscribe"
+            ? "Social subscribe bonus already claimed."
             : "This earning has already been claimed."
         );
 
@@ -251,6 +259,10 @@ export default async function handler(req, res) {
 
       if (taskId === "daily_bonus" && dateString) {
         userUpdate.lastBonusDate = dateString;
+      }
+
+      if (taskId === "social_subscribe") {
+        userUpdate.socialSubscribeClaimed = true;
       }
 
 
@@ -314,7 +326,9 @@ export default async function handler(req, res) {
       error.message ===
       "This earning has already been claimed." ||
       error.message ===
-      "Daily bonus already claimed."
+      "Daily bonus already claimed." ||
+      error.message ===
+      "Social subscribe bonus already claimed."
     ) {
 
       return res.status(409).json({
