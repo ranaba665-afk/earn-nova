@@ -1000,6 +1000,23 @@
   </div>  
 
 
+  <div  
+    style="margin:0 16px 16px; padding:16px; border-radius:16px; background:linear-gradient(135deg,#7c3aed,#a855f7); color:#fff; display:flex; justify-content:space-between; align-items:center;"  
+  >  
+    <div>  
+      <div style="font-size:13px; opacity:.85;">Daily Streak</div>  
+      <div style="font-size:24px; font-weight:700;">  
+        🔥 <span id="streakCount">0</span> days  
+      </div>  
+    </div>  
+    <div style="font-size:12px; opacity:.85; text-align:right;">  
+      Milestones:<br>  
+      3 → +500 · 7 → +1,000<br>  
+      15 → +2,500 · 30 → +10,000  
+    </div>  
+  </div>  
+
+
   <div class="earn-grid">  
 
     <div class="earn-card">  
@@ -1649,6 +1666,10 @@
   
       lastBonusDate: "",  
   
+      currentStreak: 0,  
+  
+      lastVisitDate: "",  
+  
       createdAt: serverTimestamp()  
   
     });  
@@ -1675,6 +1696,8 @@
         .classList.remove("hidden");  
   
       updateUI();  
+  
+      checkStreak();  
   
     } else {  
   
@@ -1834,6 +1857,126 @@
       String(d.getMonth() + 1).padStart(2, "0") +  
       "-" +  
       String(d.getDate()).padStart(2, "0");  
+  
+  }  
+  
+  
+  function yesterdayString() {  
+  
+    const d = new Date();  
+  
+    d.setDate(d.getDate() - 1);  
+  
+    return d.getFullYear() +  
+      "-" +  
+      String(d.getMonth() + 1).padStart(2, "0") +  
+      "-" +  
+      String(d.getDate()).padStart(2, "0");  
+  
+  }  
+  
+  
+  /* ================= DAILY STREAK ================= */  
+  
+  const STREAK_MILESTONES = [3, 7, 15, 30];  
+  
+  
+  async function checkStreak() {  
+  
+    if (!currentUser || !userData) return;  
+  
+    const today = todayString();  
+  
+    if (userData.lastVisitDate === today) {  
+      // Already counted today — just refresh the UI  
+      renderStreak();  
+      return;  
+    }  
+  
+    let newStreak;  
+  
+    if (userData.lastVisitDate === yesterdayString()) {  
+      newStreak = Number(userData.currentStreak || 0) + 1;  
+    } else {  
+      newStreak = 1;  
+    }  
+  
+    const userRef =  
+      doc(db, "users", currentUser.uid);  
+  
+    await updateDoc(userRef, {  
+      currentStreak: newStreak,  
+      lastVisitDate: today  
+    });  
+  
+    userData.currentStreak = newStreak;  
+    userData.lastVisitDate = today;  
+  
+    renderStreak();  
+  
+    if (STREAK_MILESTONES.includes(newStreak)) {  
+      await claimStreakBonus(newStreak);  
+    }  
+  
+  }  
+  
+  
+  async function claimStreakBonus(milestone) {  
+  
+    try {  
+  
+      const idToken =  
+        await currentUser.getIdToken();  
+  
+      const taskId = "streak_" + milestone;  
+  
+      const response =  
+        await fetch("/api/earn", {  
+          method: "POST",  
+          headers: {  
+            "Content-Type": "application/json",  
+            "Authorization": "Bearer " + idToken  
+          },  
+          body: JSON.stringify({  
+            taskId: taskId,  
+            claimId: taskId  
+          })  
+        });  
+  
+      const result =  
+        await response.json();  
+  
+      if (response.ok && result.success) {  
+  
+        await loadUserData();  
+  
+        updateUI();  
+  
+        showToast(  
+          `🔥 ${milestone}-Day Streak: +${result.points.toLocaleString()} points!`  
+        );  
+  
+      }  
+      // A 409 here just means this milestone was already claimed  
+      // (e.g. re-triggered on refresh) — safe to ignore silently.  
+  
+    } catch (error) {  
+  
+      console.error("Streak bonus error:", error);  
+  
+    }  
+  
+  }  
+  
+  
+  function renderStreak() {  
+  
+    const el =  
+      document.getElementById("streakCount");  
+  
+    if (el && userData) {  
+      el.textContent = userData.currentStreak || 0;  
+    }  
   
   }  
   
