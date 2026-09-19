@@ -155,9 +155,32 @@ export default async function handler(req, res) {
     };
 
 
-    const task =
-      TASKS[taskId];
+    let task = TASKS[taskId];
 
+    // Dynamic, admin-created tasks (added directly in Firestore,
+    // no code changes needed). Only "honor" verification tasks are
+    // claimable through this instant-credit endpoint — "manual"
+    // tasks must go through /api/submitTaskProof instead.
+    if (!task && taskId.startsWith("custom_")) {
+      const customTaskId = taskId.slice("custom_".length);
+      const customTaskSnap = await db
+        .collection("customTasks")
+        .doc(customTaskId)
+        .get();
+
+      if (
+        customTaskSnap.exists &&
+        customTaskSnap.data().active &&
+        customTaskSnap.data().verificationType === "honor"
+      ) {
+        const data = customTaskSnap.data();
+        task = {
+          title: data.title,
+          points: Number(data.points || 0),
+          icon: data.icon || "✅",
+        };
+      }
+    }
 
     if (!task) {
 
