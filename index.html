@@ -1074,6 +1074,24 @@
 
     </div>  
 
+
+    <div class="earn-card">  
+
+      <div class="big-icon">🎯</div>  
+
+      <div class="earn-card-content">  
+        <h3>Custom Tasks</h3>  
+        <p>  
+          Special one-off tasks from our partners.  
+        </p>  
+      </div>  
+
+      <button onclick="openCustomTasks()">  
+        Open  
+      </button>  
+
+    </div>  
+
   </div>  
 
 
@@ -1176,7 +1194,31 @@
 </section>  
 
 
+<!-- CUSTOM TASKS -->  
+
+<section id="customTasksPage" class="page">  
+
+  <div class="welcome">  
+    <h2>Custom Tasks 🎯</h2>  
+    <p>Special tasks — some auto-credit, some are reviewed manually.</p>  
+  </div>  
+
+  <button  
+    onclick="openPage('earn')"  
+    style="margin:0 16px 12px; padding:8px 16px; border-radius:10px; border:1px solid #ddd; background:#fff;"  
+  >  
+    ← Back  
+  </button>  
+
+  <div id="customTasksList" style="margin:0 16px;">  
+    <p style="color:#999; text-align:center; padding:24px 0;">Loading tasks…</p>  
+  </div>  
+
+</section>  
+
+
 <!-- REWARDS -->  
+
 
 <section id="rewardsPage" class="page">  
 
@@ -1468,6 +1510,7 @@
     collection,  
     addDoc,  
     query,  
+    where,  
     orderBy,  
     limit,  
     getDocs,  
@@ -2608,6 +2651,195 @@
     }  
   
   };  
+  
+  
+  /* ================= CUSTOM TASKS ================= */  
+  
+  window.openCustomTasks = async function() {  
+  
+    if (!currentUser) {  
+      showToast("Please log in first");  
+      return;  
+    }  
+  
+    openPage("customTasks");  
+  
+    await renderCustomTasks();  
+  
+  };  
+  
+  
+  async function renderCustomTasks() {  
+  
+    const container =  
+      document.getElementById("customTasksList");  
+  
+    container.innerHTML =  
+      '<p style="color:#999; text-align:center; padding:24px 0;">Loading tasks…</p>';  
+  
+    try {  
+  
+      const tasksQuery = query(  
+        collection(db, "customTasks"),  
+        where("active", "==", true)  
+      );  
+  
+      const tasksSnap = await getDocs(tasksQuery);  
+  
+      if (tasksSnap.empty) {  
+        container.innerHTML =  
+          '<p style="color:#999; text-align:center; padding:24px 0;">No custom tasks right now — check back later.</p>';  
+        return;  
+      }  
+  
+      const claimsSnap = await getDocs(  
+        collection(db, "users", currentUser.uid, "customTaskClaims")  
+      );  
+  
+      const claimsById = {};  
+      claimsSnap.forEach((d) => {  
+        claimsById[d.id] = d.data();  
+      });  
+  
+      container.innerHTML = "";  
+  
+      tasksSnap.forEach((docSnap) => {  
+  
+        const task = docSnap.data();  
+        const taskId = docSnap.id;  
+        const claim = claimsById[taskId];  
+  
+        const card = document.createElement("div");  
+        card.className = "task";  
+        card.style.marginBottom = "12px";  
+        card.style.flexWrap = "wrap";  
+  
+        let statusHtml = "";  
+        let actionHtml = "";  
+  
+        if (claim && claim.status === "approved") {  
+          statusHtml = '<p style="color:#16a34a;">✅ Approved — credited</p>';  
+        } else if (claim && claim.status === "pending") {  
+          statusHtml = '<p style="color:#d97706;">⏳ Pending review</p>';  
+        } else if (claim && claim.status === "rejected") {  
+          statusHtml = '<p style="color:#dc2626;">❌ Rejected</p>';  
+        } else if (task.verificationType === "honor") {  
+          actionHtml = `<button class="earn-btn" onclick="claimCustomHonorTask('${taskId}')">Claim +${Number(task.points).toLocaleString()}</button>`;
+        } else {  
+          actionHtml = `<button class="earn-btn" onclick="openProofForm('${taskId}', ${Number(task.points)})">Submit Proof</button>`;  
+        }  
+  
+        card.innerHTML = `  
+          <div class="task-icon">${task.icon || "🎯"}</div>  
+          <div class="task-info">  
+            <h4>${task.title}</h4>  
+            <p>${task.description || ""} • +${Number(task.points).toLocaleString()} pts</p>  
+            ${task.link ? `<a href="${task.link}" target="_blank" style="color:#7c3aed; font-size:13px;">Open link ↗</a>` : ""}  
+            ${statusHtml}  
+          </div>  
+          ${actionHtml}  
+        `;  
+  
+        container.appendChild(card);  
+  
+      });  
+  
+    } catch (error) {  
+      console.error(error);  
+      container.innerHTML =  
+        '<p style="color:#dc2626; text-align:center; padding:24px 0;">Unable to load tasks.</p>';  
+    }  
+  
+  }  
+  
+  
+  window.claimCustomHonorTask = async function(customTaskId) {  
+  
+    try {  
+  
+      const idToken =  
+        await currentUser.getIdToken();  
+  
+      const response =  
+        await fetch("/api/earn", {  
+          method: "POST",  
+          headers: {  
+            "Content-Type": "application/json",  
+            "Authorization": "Bearer " + idToken  
+          },  
+          body: JSON.stringify({  
+            taskId: "custom_" + customTaskId,  
+            claimId: "custom_" + customTaskId  
+          })  
+        });  
+  
+      const result =  
+        await response.json();  
+  
+      if (!response.ok || !result.success) {  
+        throw new Error(result.error || "Unable to claim task.");  
+      }  
+  
+      await loadUserData();  
+      updateUI();  
+  
+      showToast(`🎉 +${result.points.toLocaleString()} points!`);  
+  
+      await renderCustomTasks();  
+  
+    } catch (error) {  
+      showToast(error.message || "Unable to claim task.");  
+    }  
+  
+  };  
+  
+  
+  window.openProofForm = function(customTaskId, points) {  
+  
+    const proof = prompt(  
+      "Paste a link or short description proving you completed this task:"  
+    );  
+  
+    if (!proof || !proof.trim()) return;  
+  
+    submitCustomTaskProof(customTaskId, proof.trim());  
+  
+  };  
+  
+  
+  async function submitCustomTaskProof(customTaskId, proof) {  
+  
+    try {  
+  
+      const idToken =  
+        await currentUser.getIdToken();  
+  
+      const response =  
+        await fetch("/api/submitTaskProof", {  
+          method: "POST",  
+          headers: {  
+            "Content-Type": "application/json",  
+            "Authorization": "Bearer " + idToken  
+          },  
+          body: JSON.stringify({ customTaskId, proof })  
+        });  
+  
+      const result =  
+        await response.json();  
+  
+      if (!response.ok || !result.success) {  
+        throw new Error(result.error || "Unable to submit proof.");  
+      }  
+  
+      showToast("✅ Submitted — pending review");  
+  
+      await renderCustomTasks();  
+  
+    } catch (error) {  
+      showToast(error.message || "Unable to submit proof.");  
+    }  
+  
+  }  
   
   
   /* ================= COMING SOON ================= */  
